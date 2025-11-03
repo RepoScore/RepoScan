@@ -4,15 +4,9 @@ interface ScoreCardProps {
   title: string;
   score: number;
   icon: 'safety' | 'legitimacy' | 'overall';
-  breakdown?: {
-    [key: string]: number;
-  };
-  labels?: {
-    [key: string]: string;
-  };
-  weights?: {
-    [key: string]: number;
-  };
+  breakdown?: Record<string, number>;
+  labels?: Record<string, string>;
+  weights?: Record<string, number>;
 }
 
 export function ScoreCard({ title, score, icon, breakdown, labels, weights }: ScoreCardProps) {

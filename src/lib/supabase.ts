@@ -5,7 +5,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export interface SafetyBreakdown {
+export interface SafetyBreakdown extends Record<string, number> {
   total: number;
   dependency_risks: number;
   code_security: number;
@@ -14,7 +14,7 @@ export interface SafetyBreakdown {
   maintenance_posture: number;
 }
 
-export interface LegitimacyBreakdown {
+export interface LegitimacyBreakdown extends Record<string, number> {
   total: number;
   working_evidence: number;
   transparency_docs: number;
