@@ -4,6 +4,7 @@ import { Twitter } from 'lucide-react';
 import { RepoScan } from '../lib/supabase';
 import { ScoreCard } from './ScoreCard';
 import { WalletConnect } from './WalletConnect';
+import { VulnerabilityReport } from './VulnerabilityReport';
 
 export function RepoScanner() {
   const [githubUrl, setGithubUrl] = useState('');
@@ -256,6 +257,15 @@ export function RepoScanner() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {scanResult.vulnerabilities && scanResult.vulnerabilities.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <VulnerabilityReport
+                  vulnerabilities={scanResult.vulnerabilities}
+                  summary={scanResult.vulnerability_summary}
+                />
               </div>
             )}
 

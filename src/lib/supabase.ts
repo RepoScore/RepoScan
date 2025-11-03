@@ -23,6 +23,28 @@ export interface LegitimacyBreakdown extends Record<string, number> {
   license_compliance: number;
 }
 
+export interface Vulnerability {
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  type: 'dependency' | 'code_pattern' | 'configuration';
+  description: string;
+  location: string;
+  cve_id?: string;
+  details?: string;
+}
+
+export interface VulnerabilitySummary {
+  total_count: number;
+  critical_count: number;
+  high_count: number;
+  medium_count: number;
+  low_count: number;
+  by_type: {
+    dependency: number;
+    code_pattern: number;
+    configuration: number;
+  };
+}
+
 export interface RepoScan {
   id: string;
   github_url: string;
@@ -39,6 +61,8 @@ export interface RepoScan {
   analysis_summary: string;
   risk_factors: string[];
   positive_indicators: string[];
+  vulnerabilities: Vulnerability[];
+  vulnerability_summary: VulnerabilitySummary;
   scan_date: string;
   created_at: string;
 }

@@ -1,6 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { checkAccess, verifyTokenBalance } from "../_shared/tokenGate.ts";
+import { scanDependencyVulnerabilities, calculateVulnerabilitySummary, Vulnerability } from "../_shared/vulnerabilityScanner.ts";
+import { detectCodePatterns } from "../_shared/codePatternDetector.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,6 +28,8 @@ interface ScoringResult {
   notes: string[];
   risk_factors: string[];
   positive_indicators: string[];
+  vulnerabilities: Vulnerability[];
+  vulnerability_summary: any;
 }
 
 interface SafetyBreakdown {
@@ -105,7 +109,7 @@ Deno.serve(async (req: Request) => {
     const repoName = `${owner}/${repoSlug}`;
 
     const repoData = await fetchRepoData(repoName, owner);
-    
+
     if (!repoData.repo) {
       return new Response(
         JSON.stringify({ error: "Repository not found or unavailable" }),
@@ -116,7 +120,15 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const scoringResult = scoreRepository(repoData);
+    const [depVulnerabilities, codePatternVulnerabilities] = await Promise.all([
+      scanDependencyVulnerabilities(repoName, repoData.contents),
+      detectCodePatterns(repoName, repoData.contents)
+    ]);
+
+    const allVulnerabilities = [...depVulnerabilities, ...codePatternVulnerabilities];
+    const vulnerabilitySummary = calculateVulnerabilitySummary(allVulnerabilities);
+
+    const scoringResult = scoreRepository(repoData, allVulnerabilities, vulnerabilitySummary);
 
     const { data: scanResult, error: dbError } = await supabase
       .from("repo_scans")
@@ -132,6 +144,8 @@ Deno.serve(async (req: Request) => {
         analysis_summary: generateSummary(scoringResult),
         risk_factors: scoringResult.risk_factors,
         positive_indicators: scoringResult.positive_indicators,
+        vulnerabilities: scoringResult.vulnerabilities,
+        vulnerability_summary: scoringResult.vulnerability_summary,
       })
       .select()
       .single();
@@ -195,12 +209,19 @@ async function fetchRepoData(repoName: string, owner: string) {
   };
 }
 
-function scoreRepository(data: any): ScoringResult {
+function scoreRepository(data: any, vulnerabilities: Vulnerability[], vulnerabilitySummary: any): ScoringResult {
   const notes: string[] = [];
   const riskFactors: string[] = [];
   const positiveIndicators: string[] = [];
 
-  const safetyBreakdown = calculateSafety(data, notes, riskFactors, positiveIndicators);
+  if (vulnerabilitySummary.critical_count > 0) {
+    riskFactors.push(`CRITICAL: ${vulnerabilitySummary.critical_count} critical vulnerabilities found`);
+  }
+  if (vulnerabilitySummary.high_count > 0) {
+    riskFactors.push(`${vulnerabilitySummary.high_count} high-severity vulnerabilities found`);
+  }
+
+  const safetyBreakdown = calculateSafety(data, notes, riskFactors, positiveIndicators, vulnerabilities);
   const legitimacyBreakdown = calculateLegitimacy(data, notes, riskFactors, positiveIndicators);
 
   const safety_score = Math.round(safetyBreakdown.total);
@@ -221,6 +242,8 @@ function scoreRepository(data: any): ScoringResult {
     notes,
     risk_factors: riskFactors,
     positive_indicators: positiveIndicators,
+    vulnerabilities,
+    vulnerability_summary: vulnerabilitySummary,
   };
 }
 
@@ -228,7 +251,8 @@ function calculateSafety(
   data: any,
   notes: string[],
   risks: string[],
-  positives: string[]
+  positives: string[],
+  vulnerabilities?: Vulnerability[]
 ): SafetyBreakdown {
   const depRisks = scoreDependencyRisks(data.contents, risks, positives);
   const codeSec = scoreCodeSecurity(data.contents, data.repo, risks, positives);
