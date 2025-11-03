@@ -3,12 +3,14 @@ import { Shield, AlertTriangle, CheckCircle, Github, Loader2, TrendingUp, Info }
 import { Twitter } from 'lucide-react';
 import { RepoScan } from '../lib/supabase';
 import { ScoreCard } from './ScoreCard';
+import { WalletConnect } from './WalletConnect';
 
 export function RepoScanner() {
   const [githubUrl, setGithubUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [scanResult, setScanResult] = useState<RepoScan | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +78,12 @@ export function RepoScanner() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 py-12 px-4">
       <div className="max-w-6xl mx-auto">
+        <div className="flex justify-end mb-4">
+          <WalletConnect
+            onConnect={(address) => setWalletAddress(address)}
+            onDisconnect={() => setWalletAddress(null)}
+          />
+        </div>
         <div className="text-center mb-12">
           <div className="flex flex-col items-center justify-center gap-4 mb-6">
             <img
