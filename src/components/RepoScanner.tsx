@@ -76,11 +76,16 @@ export function RepoScanner() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-6">
+          <div className="flex flex-col items-center justify-center gap-4 mb-6">
+            <img
+              src="https://i.imgur.com/17jvOvf.png"
+              alt="RepoScan Icon"
+              className="w-20 h-20 object-contain"
+            />
             <img
               src="https://i.imgur.com/j0MnzOZ.png"
               alt="RepoScan"
-              className="h-16 object-contain"
+              className="h-12 object-contain"
             />
           </div>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-6">
