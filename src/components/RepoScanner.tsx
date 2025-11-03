@@ -198,7 +198,7 @@ export function RepoScanner() {
                 <div className="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-lg">
                   <Info className="w-4 h-4 text-slate-600" />
                   <span className="text-sm font-medium text-slate-700">
-                    Confidence: {(scanResult.confidence * 100).toFixed(0)}%
+                    Confidence: {scanResult.confidence}%
                   </span>
                 </div>
               </div>
