@@ -213,6 +213,7 @@ async function scanBasicSecurity(
 
   const packageJson = contents.find(f => f.name === 'package.json');
   if (packageJson) {
+    const knownVulnPackages = ['node-ipc', 'event-stream'];
     vulnerabilities.push({
       severity: 'medium',
       type: 'dependency',
