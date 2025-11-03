@@ -72,13 +72,18 @@ export function WalletConnect({ onConnect, onDisconnect }: WalletConnectProps) {
   }
 
   return (
-    <button
-      onClick={connectWallet}
-      disabled={isConnecting}
-      className="flex items-center gap-2 bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white font-medium px-5 py-2.5 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-    >
-      <Wallet className="w-5 h-5" />
-      <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
-    </button>
+    <div className="relative">
+      <button
+        onClick={connectWallet}
+        disabled={true}
+        className="flex items-center gap-2 bg-gradient-to-r from-slate-400 to-slate-500 text-white font-medium px-5 py-2.5 rounded-xl transition-all opacity-60 cursor-not-allowed shadow-md"
+      >
+        <Wallet className="w-5 h-5" />
+        <span>Connect Wallet</span>
+      </button>
+      <div className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-md shadow-lg">
+        Coming Soon
+      </div>
+    </div>
   );
 }
