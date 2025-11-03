@@ -1,14 +1,17 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { checkAccess, verifyTokenBalance } from "../_shared/tokenGate.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey, X-Wallet-Address",
 };
 
 interface RepoScanRequest {
   githubUrl: string;
+  walletAddress?: string;
+  tokenBalance?: number;
 }
 
 interface ScoringResult {
@@ -57,7 +60,32 @@ Deno.serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { githubUrl }: RepoScanRequest = await req.json();
+    const { githubUrl, walletAddress, tokenBalance }: RepoScanRequest = await req.json();
+
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0] ||
+                     req.headers.get("x-real-ip") ||
+                     "unknown";
+
+    const accessCheck = await checkAccess(
+      supabase,
+      walletAddress || null,
+      clientIp,
+      tokenBalance
+    );
+
+    if (!accessCheck.allowed) {
+      return new Response(
+        JSON.stringify({
+          error: accessCheck.reason,
+          token_gate_active: true,
+          scans_remaining: accessCheck.scans_remaining,
+        }),
+        {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     const githubUrlPattern = /^https?:\/\/(www\.)?github\.com\/([\w-]+)\/([\w.-]+)\/?$/;
     const match = githubUrl.match(githubUrlPattern);
@@ -123,6 +151,10 @@ Deno.serve(async (req: Request) => {
       JSON.stringify({
         success: true,
         scan: scanResult,
+        access_info: {
+          has_token_access: accessCheck.has_token_access,
+          scans_remaining: accessCheck.scans_remaining,
+        },
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
