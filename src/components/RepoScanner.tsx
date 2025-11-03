@@ -92,15 +92,27 @@ export function RepoScanner() {
           <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-4">
             Comprehensive dual-score analysis for GitHub repositories
           </p>
-          <a
-            href="https://x.com/RepoScanner"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors mb-6"
-          >
-            <Twitter className="w-5 h-5" />
-            <span className="text-sm font-medium">Follow us on X</span>
-          </a>
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <a
+              href="https://x.com/RepoScanner"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors"
+            >
+              <Twitter className="w-5 h-5" />
+              <span className="text-sm font-medium">Follow us on X</span>
+            </a>
+            <span className="text-slate-300">•</span>
+            <a
+              href="https://github.com/RepoScore/RepoScan"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
+            >
+              <Github className="w-5 h-5" />
+              <span className="text-sm font-medium">View on GitHub</span>
+            </a>
+          </div>
           <div className="flex items-center justify-center gap-6 text-sm text-slate-600">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-blue-600" />
