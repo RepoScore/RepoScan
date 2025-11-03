@@ -500,10 +500,12 @@ function scoreMaintenancePosture(
     const uniqueAuthors = new Set(commits.map(c => c.commit.author.email)).size;
     if (uniqueAuthors >= 3) {
       score += 10;
-      positives.push("Multiple contributors (" + uniqueAuthors + ")");
+      positives.push(`Multiple contributors (${uniqueAuthors})`);
     }
-  } else {
-    risks.push("No commit history available");
+  }
+
+  if (repo.has_issues && !repo.disabled) {
+    score += 5;
   }
 
   return clamp(score, 0, 100);
@@ -515,70 +517,57 @@ function calculateLegitimacy(
   risks: string[],
   positives: string[]
 ): LegitimacyBreakdown {
-  const working = scoreWorkingEvidence(data.contents, data.repo, data.commits, risks, positives);
-  const transparency = scoreTransparency(data.contents, data.repo, risks, positives);
-  const community = scoreCommunity(data.repo, data.contributors, risks, positives);
-  const author = scoreAuthorReputation(data.owner, data.repo, risks, positives);
-  const license = scoreLicenseCompliance(data.repo, risks, positives);
+  const workingEvidence = scoreWorkingEvidence(data.contents, data.commits, risks, positives);
+  const transpDocs = scoreTransparency(data.contents, data.repo, risks, positives);
+  const commSignals = scoreCommunitySignals(data.repo, risks, positives);
+  const authorRep = scoreAuthorReputation(data.owner, data.contributors, risks, positives);
+  const licenseComp = scoreLicenseCompliance(data.repo, risks, positives);
 
   const total = 
-    working * 0.40 +
-    transparency * 0.20 +
-    community * 0.15 +
-    author * 0.15 +
-    license * 0.10;
+    workingEvidence * 0.25 +
+    transpDocs * 0.20 +
+    commSignals * 0.25 +
+    authorRep * 0.20 +
+    licenseComp * 0.10;
 
   return {
     total,
-    working_evidence: working,
-    transparency_docs: transparency,
-    community_signals: community,
-    author_reputation: author,
-    license_compliance: license,
+    working_evidence: workingEvidence,
+    transparency_docs: transpDocs,
+    community_signals: commSignals,
+    author_reputation: authorRep,
+    license_compliance: licenseComp,
   };
 }
 
 function scoreWorkingEvidence(
   contents: any[],
-  repo: any,
   commits: any[],
   risks: string[],
   positives: string[]
 ): number {
   let score = 30;
 
-  const lockFiles = ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'Cargo.lock', 'go.sum', 'poetry.lock'];
-  const hasLock = contents.some(f => lockFiles.includes(f.name));
-  
-  if (hasLock) {
+  const srcDirs = ['src', 'lib', 'app', 'core', 'components'];
+  const hasSrcDir = contents.some(f => f.type === 'dir' && srcDirs.includes(f.name.toLowerCase()));
+  if (hasSrcDir) {
+    score += 30;
+    positives.push("Has organized source code structure");
+  }
+
+  const mainFiles = ['index.js', 'index.ts', 'main.py', 'main.rs', 'main.go', 'app.js', 'server.js'];
+  const hasMain = contents.some(f => mainFiles.includes(f.name.toLowerCase()));
+  if (hasMain) {
     score += 20;
-    positives.push("Reproducible environment with lock files");
-  } else {
-    risks.push("No lock file - build may not be reproducible");
+    positives.push("Has entry point file");
   }
 
-  const hasDocker = contents.some(f => f.name.toLowerCase().includes('dockerfile'));
-  if (hasDocker) {
-    score += 15;
-    positives.push("Has Dockerfile for containerized builds");
-  }
-
-  const exampleDirs = ['examples', 'example', 'demo', 'demos', 'samples'];
-  const hasExamples = contents.some(f => exampleDirs.some(d => f.name.toLowerCase().includes(d)));
-  
-  if (hasExamples) {
+  if (commits.length >= 10) {
     score += 20;
-    positives.push("Includes example code/demos");
-  } else {
-    risks.push("No example code found");
-  }
-
-  const ciFiles = ['.github', '.gitlab-ci.yml', '.travis.yml', 'azure-pipelines.yml', '.circleci'];
-  const hasCI = contents.some(f => ciFiles.some(ci => f.name.includes(ci)));
-  
-  if (hasCI) {
-    score += 15;
-    positives.push("Has CI/CD configuration");
+    positives.push("Has substantial commit history");
+  } else if (commits.length < 3) {
+    score -= 20;
+    risks.push("Very few commits - may be incomplete");
   }
 
   return clamp(score, 0, 100);
@@ -590,73 +579,83 @@ function scoreTransparency(
   risks: string[],
   positives: string[]
 ): number {
-  let score = 20;
+  let score = 30;
 
-  const hasReadme = contents.some(f => f.name.toLowerCase().includes('readme'));
+  const hasReadme = contents.some(f => f.name.toLowerCase().startsWith('readme'));
   if (hasReadme) {
-    score += 35;
+    score += 30;
   } else {
-    score -= 20;
-    risks.push("No README found");
+    score -= 30;
+    risks.push("No README documentation");
   }
 
-  if (repo.description && repo.description.length > 30) {
-    score += 20;
-    positives.push("Has detailed description");
-  } else if (!repo.description || repo.description.length < 10) {
-    risks.push("Missing or minimal description");
-  }
-
-  const hasContributing = contents.some(f => f.name.toLowerCase() === 'contributing.md');
-  if (hasContributing) {
-    score += 15;
-    positives.push("Has CONTRIBUTING.md guidelines");
-  }
-
-  const hasChangelog = contents.some(f => f.name.toLowerCase().includes('changelog'));
+  const hasChangelog = contents.some(f => f.name.toLowerCase().includes('changelog') || f.name.toLowerCase().includes('history'));
   if (hasChangelog) {
+    score += 15;
+    positives.push("Maintains changelog");
+  }
+
+  const hasContributing = contents.some(f => f.name.toLowerCase().includes('contributing'));
+  if (hasContributing) {
     score += 10;
-    positives.push("Maintains a changelog");
+    positives.push("Has contribution guidelines");
+  }
+
+  if (repo.description && repo.description.length > 10) {
+    score += 15;
+  } else {
+    score -= 10;
+    risks.push("No repository description");
   }
 
   return clamp(score, 0, 100);
 }
 
-function scoreCommunity(
+function scoreCommunitySignals(
   repo: any,
-  contributors: any[],
   risks: string[],
   positives: string[]
 ): number {
-  const stars = repo.stargazers_count || 0;
-  const forks = repo.forks_count || 0;
-  
-  let score = 20;
+  let score = 0;
 
-  const starScore = Math.min(Math.log10(stars + 1) / 4 * 100, 100);
-  score += starScore * 0.40;
-
-  if (stars > 1000) {
-    positives.push("Highly popular: " + stars + " stars");
-  } else if (stars > 100) {
-    positives.push("Popular: " + stars + " stars");
-  } else if (stars < 5) {
-    risks.push("Very low star count");
-  }
-
-  if (contributors.length > 5) {
-    score += 25;
-    positives.push(contributors.length + "+ contributors");
-  } else if (contributors.length === 1) {
-    score += 5;
-    risks.push("Single contributor project");
+  if (repo.stargazers_count > 1000) {
+    score += 40;
+    positives.push(`Highly starred (${repo.stargazers_count} stars)`);
+  } else if (repo.stargazers_count > 100) {
+    score += 30;
+    positives.push(`Well-received (${repo.stargazers_count} stars)`);
+  } else if (repo.stargazers_count > 10) {
+    score += 15;
   } else {
-    score += 15;
+    score += 5;
   }
 
-  if (forks > 50) {
+  if (repo.forks_count > 50) {
+    score += 20;
+    positives.push(`Active community (${repo.forks_count} forks)`);
+  } else if (repo.forks_count > 10) {
+    score += 10;
+  }
+
+  if (repo.watchers_count > 20) {
     score += 15;
-    positives.push(forks + " forks");
+  } else if (repo.watchers_count > 5) {
+    score += 8;
+  }
+
+  if (repo.open_issues_count > 0 && repo.open_issues_count < 50) {
+    score += 10;
+  } else if (repo.open_issues_count >= 50) {
+    score += 5;
+    risks.push(`High number of open issues (${repo.open_issues_count})`);
+  }
+
+  if (repo.has_discussions) {
+    score += 5;
+  }
+
+  if (repo.stargazers_count === 0 && repo.forks_count === 0) {
+    risks.push("No community engagement (0 stars, 0 forks)");
   }
 
   return clamp(score, 0, 100);
@@ -664,35 +663,45 @@ function scoreCommunity(
 
 function scoreAuthorReputation(
   owner: any,
-  repo: any,
+  contributors: any[],
   risks: string[],
   positives: string[]
 ): number {
-  if (!owner) return 30;
+  let score = 20;
 
-  let score = 40;
+  if (owner) {
+    if (owner.public_repos > 20) {
+      score += 25;
+      positives.push("Author has substantial GitHub presence");
+    } else if (owner.public_repos > 5) {
+      score += 15;
+    }
 
-  if (owner.type === 'Organization') {
-    score += 30;
-    positives.push("Owned by an organization");
+    if (owner.followers > 100) {
+      score += 20;
+      positives.push(`Author has strong reputation (${owner.followers} followers)`);
+    } else if (owner.followers > 20) {
+      score += 10;
+    }
+
+    const accountAge = Date.now() - new Date(owner.created_at).getTime();
+    const accountAgeYears = accountAge / (1000 * 60 * 60 * 24 * 365);
+    if (accountAgeYears > 3) {
+      score += 15;
+      positives.push("Established GitHub account");
+    } else if (accountAgeYears < 0.25) {
+      score -= 15;
+      risks.push("Very new GitHub account");
+    }
+
+    if (owner.company || owner.blog) {
+      score += 10;
+    }
   }
 
-  const accountAge = (Date.now() - new Date(owner.created_at).getTime()) / (1000 * 60 * 60 * 24);
-  if (accountAge > 730) {
-    score += 20;
-    positives.push("Well-established account (2+ years)");
-  } else if (accountAge < 90) {
-    score -= 10;
-    risks.push("Relatively new account");
-  } else {
+  if (contributors && contributors.length > 5) {
     score += 10;
-  }
-
-  if (owner.public_repos > 5) {
-    score += 10;
-    positives.push(owner.public_repos + " public repositories");
-  } else if (owner.public_repos === 1) {
-    risks.push("Only one public repository");
+    positives.push("Multiple contributors");
   }
 
   return clamp(score, 0, 100);
@@ -703,21 +712,22 @@ function scoreLicenseCompliance(
   risks: string[],
   positives: string[]
 ): number {
-  if (!repo.license) {
-    risks.push("No license - unclear usage rights");
-    return 30;
-  }
+  let score = 0;
 
-  let score = 70;
-  positives.push("Licensed: " + repo.license.name);
-
-  const popularLicenses = ['MIT', 'Apache', 'GPL', 'BSD', 'ISC', 'Mozilla'];
-  const isPopular = popularLicenses.some(l => repo.license.name.includes(l));
-  
-  if (isPopular) {
-    score += 30;
+  if (repo.license) {
+    const licenseName = repo.license.name.toLowerCase();
+    if (licenseName.includes('mit') || licenseName.includes('apache') || licenseName.includes('bsd')) {
+      score = 100;
+      positives.push(`Permissive license: ${repo.license.name}`);
+    } else if (licenseName.includes('gpl')) {
+      score = 70;
+      positives.push(`Open source license: ${repo.license.name}`);
+    } else {
+      score = 50;
+    }
   } else {
-    score += 10;
+    score = 30;
+    risks.push("No license specified");
   }
 
   return clamp(score, 0, 100);
@@ -728,46 +738,23 @@ function calculateConfidence(
   safety: SafetyBreakdown,
   legitimacy: LegitimacyBreakdown
 ): number {
-  let signalsAttempted = 0;
-  let signalsSuccessful = 0;
+  let confidence = 70;
 
-  if (data.repo) signalsSuccessful++;
-  signalsAttempted++;
+  if (data.commits.length >= 20) confidence += 10;
+  if (data.repo.stargazers_count > 50) confidence += 10;
+  if (data.contributors && data.contributors.length > 3) confidence += 5;
+  if (data.contents.some((f: any) => f.name.toLowerCase().includes('test'))) confidence += 5;
 
-  if (data.contents && data.contents.length > 0) signalsSuccessful++;
-  signalsAttempted++;
-
-  if (data.commits && data.commits.length > 0) signalsSuccessful++;
-  signalsAttempted++;
-
-  if (data.contributors) signalsSuccessful++;
-  signalsAttempted++;
-
-  if (data.owner) signalsSuccessful++;
-  signalsAttempted++;
-
-  const dataQuality = signalsSuccessful / signalsAttempted;
-
-  const avgScore = (safety.total + legitimacy.total) / 2;
-  const scoreConfidence = avgScore > 30 ? 0.8 : 0.5;
-
-  const confidence = 0.6 * dataQuality + 0.4 * scoreConfidence;
-  
-  return Number(confidence.toFixed(2));
+  return clamp(confidence, 0, 100);
 }
 
 function generateSummary(result: ScoringResult): string {
-  const overall = result.overall_score;
+  const safetyLevel = result.safety_score >= 70 ? "secure" : result.safety_score >= 40 ? "moderate risk" : "high risk";
+  const legLevel = result.legitimacy_score >= 70 ? "legitimate" : result.legitimacy_score >= 40 ? "uncertain" : "questionable";
   
-  if (overall >= 70) {
-    return "This repository demonstrates strong safety practices and legitimate development patterns with solid community trust.";
-  } else if (overall >= 50) {
-    return "This repository shows moderate indicators of quality and legitimacy. Review the risk factors carefully before use.";
-  } else {
-    return "This repository has significant concerns. Thoroughly review all risk factors and exercise caution before using this code.";
-  }
+  return `Repository appears ${safetyLevel} and ${legLevel}. Overall score: ${result.overall_score}/100 with ${result.confidence}% confidence.`;
 }
 
 function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
+  return Math.min(Math.max(value, min), max);
 }

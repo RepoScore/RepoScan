@@ -54,7 +54,14 @@ async function checkTyposquatting(
       const depNameLower = depName.toLowerCase();
 
       for (const [legit, variants] of Object.entries(popularPackages)) {
-        if (variants.some(v => v !== legit && levenshteinDistance(depNameLower, v) <= 1)) {
+        const isSuspicious = variants.some(v => {
+          if (v === legit) return false;
+          if (depNameLower === legit) return false;
+          if (depNameLower === v) return false;
+          return levenshteinDistance(depNameLower, v) <= 1;
+        });
+
+        if (isSuspicious) {
           vulnerabilities.push({
             severity: 'critical',
             type: 'dependency',
@@ -62,6 +69,7 @@ async function checkTyposquatting(
             location: 'package.json',
             details: 'This package name is suspiciously similar to a popular package'
           });
+          break;
         }
       }
 

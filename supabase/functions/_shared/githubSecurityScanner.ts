@@ -84,33 +84,6 @@ async function checkSecurityPolicy(
   contents: any[],
   vulnerabilities: Vulnerability[]
 ): Promise<void> {
-  const hasSecurityMd = contents.some(f =>
-    f.name.toLowerCase() === 'security.md'
-  );
-
-  if (!hasSecurityMd) {
-    vulnerabilities.push({
-      severity: 'low',
-      type: 'configuration',
-      description: 'No SECURITY.md file',
-      location: 'Repository root',
-      details: 'Add SECURITY.md to provide security disclosure guidelines'
-    });
-  }
-
-  const hasCodeowners = contents.some(f =>
-    f.name === 'CODEOWNERS' || f.path?.includes('.github/CODEOWNERS')
-  );
-
-  if (!hasCodeowners) {
-    vulnerabilities.push({
-      severity: 'low',
-      type: 'configuration',
-      description: 'No CODEOWNERS file',
-      location: 'Repository',
-      details: 'Add CODEOWNERS to automatically request reviews from code owners'
-    });
-  }
 }
 
 async function checkGitHubActions(
@@ -211,38 +184,8 @@ async function checkRepoSettings(
   repo: any,
   vulnerabilities: Vulnerability[]
 ): Promise<void> {
-  if (repo.has_issues && !repo.has_discussions) {
-    vulnerabilities.push({
-      severity: 'low',
-      type: 'configuration',
-      description: 'GitHub Discussions not enabled',
-      location: 'GitHub Settings',
-      details: 'Enable Discussions for community engagement and support'
-    });
-  }
-
-  if (!repo.has_wiki && !repo.has_pages) {
-    vulnerabilities.push({
-      severity: 'low',
-      type: 'configuration',
-      description: 'No documentation hosting enabled',
-      location: 'GitHub Settings',
-      details: 'Consider enabling Wiki or GitHub Pages for documentation'
-    });
-  }
-
-  if (repo.allow_forking === false && repo.visibility === 'public') {
-    vulnerabilities.push({
-      severity: 'low',
-      type: 'configuration',
-      description: 'Forking disabled on public repository',
-      location: 'GitHub Settings',
-      details: 'Public repositories typically allow forking for contributions'
-    });
-  }
-
   if (repo.security_and_analysis) {
-    if (!repo.security_and_analysis.secret_scanning?.status === 'enabled') {
+    if (repo.security_and_analysis.secret_scanning?.status !== 'enabled') {
       vulnerabilities.push({
         severity: 'medium',
         type: 'configuration',
@@ -252,7 +195,7 @@ async function checkRepoSettings(
       });
     }
 
-    if (!repo.security_and_analysis.dependabot_security_updates?.status === 'enabled') {
+    if (repo.security_and_analysis.dependabot_security_updates?.status !== 'enabled') {
       vulnerabilities.push({
         severity: 'medium',
         type: 'configuration',
@@ -261,16 +204,6 @@ async function checkRepoSettings(
         details: 'Enable Dependabot to automatically fix security vulnerabilities'
       });
     }
-  }
-
-  if (repo.default_branch !== 'main' && repo.default_branch !== 'master') {
-    vulnerabilities.push({
-      severity: 'low',
-      type: 'configuration',
-      description: `Non-standard default branch: ${repo.default_branch}`,
-      location: 'GitHub Settings',
-      details: 'Consider using "main" or "master" as default branch name'
-    });
   }
 }
 
