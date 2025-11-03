@@ -147,6 +147,56 @@ RepoScan is built on a modern, scalable architecture:
 
 ---
 
+## 🔹 Access Model & Token Economics
+
+RepoScan operates on a dual-tier system designed to sustain long-term development while keeping essential functionality accessible to everyone.
+
+### 🕒 Launch Phase: Free Access
+
+**Duration**: First 24 hours after official launch
+
+**Purpose**: Load testing, user onboarding, and feedback collection
+
+**Access**: All scans are completely free during this period. Data gathered will be used to optimize performance and finalize v2 (Claude-enhanced DeepScan engine).
+
+### ⚙️ Post-Launch Model
+
+RepoScan operates on a dual-access system with two distinct scanning tiers:
+
+| Tier | Scan Type | Token Requirement | Description |
+|------|-----------|-------------------|-------------|
+| **Free Tier (v1)** | Quick Scan | Free | Basic static and dependency analysis with standard Safety & Legitimacy scoring |
+| **Premium Tier (v2)** | DeepScan | 100 tokens per scan or lock 1,000,000 tokens for 30 days | Advanced LLM-assisted scanning powered by Claude API, with natural language risk summaries and deeper AI insights |
+
+### 🔁 Payment Mechanics
+
+**Burn Mechanism**:
+Tokens burned per scan are permanently removed from circulation, creating a deflationary model that rewards long-term holders.
+
+**Lock Mechanism**:
+Locked tokens remain in the user's wallet but cannot be moved or traded for the 30-day duration. At the end of the lock period, the tokens unlock automatically.
+
+### 🔒 Utility Summary
+
+**Quick Scan (Free)**:
+Provides a fast overview with static checks and dependency validation using the current v1 analysis engine.
+
+**DeepScan (Token-Gated)**:
+Uses the Claude API for contextual LLM reasoning, detailed code integrity checks, and legitimacy verification.
+
+Includes:
+- Natural language summaries
+- Vulnerability correlation
+- Developer reputation weighting
+- Confidence scoring enhancements
+
+### 🔮 Future Token Utility
+
+- **v3.0**: Browser extension with token-based on-demand scans directly in GitHub
+- **v3.1**: Public API for integration and leaderboards, requiring token staking for access
+
+---
+
 ## 🔹 Getting Started
 
 ### Prerequisites
