@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, AlertTriangle, CheckCircle, Github, Loader2, TrendingUp, Info } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, Github, Loader2, TrendingUp, Info, FileText } from 'lucide-react';
 import { Twitter } from 'lucide-react';
 import { RepoScan } from '../lib/supabase';
 import { ScoreCard } from './ScoreCard';
@@ -121,6 +121,16 @@ export function RepoScanner() {
             >
               <Github className="w-5 h-5" />
               <span className="text-sm font-medium">View on GitHub</span>
+            </a>
+            <span className="text-slate-300">•</span>
+            <a
+              href="/RepoScan_Whitepaper_v1.4.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-emerald-600 transition-colors"
+            >
+              <FileText className="w-5 h-5" />
+              <span className="text-sm font-medium">Read Whitepaper</span>
             </a>
           </div>
           <div className="flex items-center justify-center gap-6 text-sm text-slate-600">
