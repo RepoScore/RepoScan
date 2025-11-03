@@ -21,10 +21,12 @@ Each score is represented on a scale from **0 to 100**, with a weighted **Overal
 
 - **Dual-Score System**: Separate Safety and Legitimacy ratings with transparent weighting
 - **Comprehensive Analysis**: Examines dependencies, code patterns, security policies, and community signals
+- **Dependency Vulnerability Scanning**: Detects known CVEs in npm, Python, and Rust packages
+- **AST-Based Code Pattern Detection**: Scans for hardcoded secrets, SQL injection, command injection, and insecure functions
 - **Working Evidence Focus**: Legitimacy heavily weighted toward proof the code actually works (lock files, CI/CD, examples)
 - **Confidence Scoring**: Quality metrics showing reliability of the analysis
 - **Real-Time Scanning**: Instant analysis via Supabase Edge Functions
-- **Modern UI**: Beautiful, responsive interface with detailed score breakdowns
+- **Modern UI**: Beautiful, responsive interface with detailed score breakdowns and vulnerability reports
 - **Persistent Storage**: All scans saved to Supabase for historical analysis
 
 ---
@@ -195,6 +197,15 @@ The scan-repo edge function is automatically deployed and handles:
 - **Extension Scanning**: Flags potentially dangerous binary files
 - **Structure Analysis**: Evaluates project organization and completeness
 
+### Vulnerability Scanning
+- **Dependency Analysis**: Checks npm, Python, and Rust packages against known CVE databases
+- **Code Pattern Detection**: Scans source code for:
+  - Hardcoded secrets (API keys, passwords, tokens)
+  - SQL injection vulnerabilities
+  - Command injection risks
+  - Insecure functions (eval, pickle, unsafe blocks)
+  - XSS vulnerabilities (innerHTML, dangerouslySetInnerHTML)
+
 ### Metadata Analysis
 - **GitHub API Data**: Repository stats, commit history, contributor info
 - **Temporal Analysis**: Account age, update frequency, commit patterns
@@ -241,8 +252,8 @@ Confidence reflects how complete the analysis is based on available data.
 | ✅ v1.0 | Dual-score static analysis engine | **Complete** |
 | ✅ v1.0 | Modern React UI with detailed breakdowns | **Complete** |
 | ✅ v1.0 | Supabase backend with persistent storage | **Complete** |
-| 🔜 v1.1 | Dependency vulnerability scanning (NVD/Snyk) | Planned |
-| 🔜 v1.2 | AST-based code pattern detection | Planned |
+| ✅ v1.1 | Dependency vulnerability scanning (NVD/Snyk) | **Complete** |
+| ✅ v1.2 | AST-based code pattern detection | **Complete** |
 | 🔜 v2.0 | Sandboxed build/test execution | Planned |
 | 🔜 v2.1 | AI-powered claim verification | Planned |
 | 🔜 v3.0 | Browser extension for in-page scanning | Planned |
@@ -253,11 +264,12 @@ Confidence reflects how complete the analysis is based on available data.
 ## 🤝 Contributing
 
 Contributions are welcome! Areas for improvement:
-- Enhanced dependency scanning with CVE databases
-- Language-specific analysis modules
+- Additional language support for vulnerability scanning
+- Integration with live CVE databases (NVD API)
 - Machine learning model for pattern detection
 - Additional scoring categories
 - Performance optimizations
+- Enhanced AST parsing for deeper code analysis
 
 ---
 
@@ -279,6 +291,8 @@ CREATE TABLE repo_scans (
   analysis_summary text,
   risk_factors jsonb DEFAULT '[]'::jsonb,
   positive_indicators jsonb DEFAULT '[]'::jsonb,
+  vulnerabilities jsonb DEFAULT '[]'::jsonb,
+  vulnerability_summary jsonb,
   scan_date timestamptz DEFAULT now(),
   created_at timestamptz DEFAULT now()
 );
