@@ -128,8 +128,12 @@ RepoScan is designed with security as a foundational principle:
 | v1.2 | AST-based pattern detection | ✅ Complete |
 | v2.0 | Sandboxed build/test execution | 🔜 Planned |
 | v2.1 | AI-powered claim verification | 🔜 Planned |
-| v3.0 | Browser extension for in-page GitHub scanning | 🔜 Planned |
-| v3.1 | Public API with open trust leaderboard | 🔜 Planned |
+| v3.0 | LLM-enhanced deep scanning with Claude API | 🔜 Planned |
+| v3.1 | Hybrid Quick Scan vs Deep Scan modes | 🔜 Planned |
+| v3.2 | Natural language risk summaries and insights | 🔜 Planned |
+| v3.3 | Intelligent code pattern analysis via LLM | 🔜 Planned |
+| v3.4 | Browser extension for in-page GitHub scanning | 🔜 Planned |
+| v3.5 | Public API with open trust leaderboard | 🔜 Planned |
 
 ---
 
