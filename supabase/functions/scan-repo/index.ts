@@ -205,13 +205,15 @@ async function scanBasicSecurity(
   }
 
   const packageJson = contents.find(f => f.name === 'package.json');
-  if (packageJson) {
+  const packageLockJson = contents.find(f => f.name === 'package-lock.json');
+
+  if (packageJson && !packageLockJson) {
     vulnerabilities.push({
       severity: 'medium',
       type: 'dependency',
-      description: 'JavaScript dependencies detected - manual review recommended',
+      description: 'Missing package-lock.json - unlocked dependencies detected',
       location: 'package.json',
-      details: 'Check for known vulnerable packages'
+      details: 'Dependencies are not locked to specific versions, which can lead to inconsistent builds and potential security issues'
     });
   }
 }
