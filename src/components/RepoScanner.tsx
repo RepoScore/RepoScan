@@ -77,9 +77,11 @@ export function RepoScanner() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
-            <div className="p-3 bg-blue-600 rounded-2xl shadow-lg">
-              <Shield className="w-10 h-10 text-white" />
-            </div>
+            <img
+              src="https://i.imgur.com/17jvOvf.png"
+              alt="RepoScan Logo"
+              className="w-24 h-24 object-contain"
+            />
           </div>
           <h1 className="text-5xl font-bold text-slate-900 mb-3 tracking-tight">
             RepoScan
