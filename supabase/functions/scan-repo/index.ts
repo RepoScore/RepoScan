@@ -68,6 +68,8 @@ Deno.serve(async (req: Request) => {
 
     await scanBasicSecurity(repoName, repoData.contents, vulnerabilities);
 
+    const codeQualityMetrics = await analyzeCodeQuality(repoName, repoData.contents);
+
     const safetyBreakdown = calculateSafety(repoData, notes, riskFactors, positiveIndicators);
     const legitimacyBreakdown = calculateLegitimacy(repoData, notes, riskFactors, positiveIndicators);
 
@@ -103,16 +105,7 @@ Deno.serve(async (req: Request) => {
       positive_indicators: positiveIndicators,
       vulnerabilities,
       vulnerability_summary: vulnerabilitySummary,
-      code_quality_metrics: {
-        total_files_analyzed: 0,
-        avg_file_size: 0,
-        avg_complexity: 0,
-        code_duplication_risk: 0,
-        comment_ratio: 0,
-        large_files_count: 0,
-        quality_score: 70,
-        issues: []
-      }
+      code_quality_metrics: codeQualityMetrics
     };
 
     const { data: scanResult, error: dbError } = await supabase
@@ -221,6 +214,84 @@ async function scanBasicSecurity(
       details: 'Check for known vulnerable packages'
     });
   }
+}
+
+async function analyzeCodeQuality(repoName: string, contents: any[]): Promise<any> {
+  const codeFiles = contents.filter(f =>
+    f.type === 'file' &&
+    !f.name.startsWith('.') &&
+    /\.(js|ts|jsx|tsx|py|go|rs|java|cpp|c|h|rb|php|swift|kt)$/i.test(f.name)
+  );
+
+  const totalFiles = codeFiles.length;
+  let totalSize = 0;
+  let largeFilesCount = 0;
+  const issues: string[] = [];
+
+  for (const file of codeFiles) {
+    if (file.size) {
+      totalSize += file.size;
+      if (file.size > 50000) {
+        largeFilesCount++;
+      }
+    }
+  }
+
+  const avgFileSize = totalFiles > 0 ? totalSize / totalFiles : 0;
+
+  const hasTests = contents.some(f =>
+    /test|spec|__tests__/i.test(f.name) ||
+    /\.(test|spec)\.(js|ts|jsx|tsx|py)$/i.test(f.name)
+  );
+
+  const hasLinter = contents.some(f =>
+    ['eslint', 'tslint', 'pylint', '.eslintrc', '.pylintrc'].some(lint =>
+      f.name.toLowerCase().includes(lint)
+    )
+  );
+
+  const hasFormatter = contents.some(f =>
+    ['prettier', '.prettierrc', 'black', '.editorconfig'].some(fmt =>
+      f.name.toLowerCase().includes(fmt)
+    )
+  );
+
+  let qualityScore = 50;
+
+  if (hasTests) {
+    qualityScore += 20;
+  } else {
+    issues.push('No test files detected');
+  }
+
+  if (hasLinter) qualityScore += 10;
+  if (hasFormatter) qualityScore += 5;
+
+  if (largeFilesCount > 0) {
+    qualityScore -= Math.min(15, largeFilesCount * 3);
+    issues.push(`${largeFilesCount} large files (>50KB) detected`);
+  }
+
+  if (avgFileSize > 30000) {
+    qualityScore -= 10;
+    issues.push('High average file size');
+  }
+
+  if (totalFiles > 0 && totalFiles < 3) {
+    qualityScore -= 15;
+    issues.push('Very few code files - may be incomplete');
+  }
+
+  return {
+    total_files_analyzed: totalFiles,
+    avg_file_size: Math.round(avgFileSize),
+    avg_complexity: 0,
+    code_duplication_risk: 0,
+    comment_ratio: 0,
+    large_files_count: largeFilesCount,
+    quality_score: Math.max(0, Math.min(100, qualityScore)),
+    issues
+  };
 }
 
 function calculateSafety(data: any, notes: string[], risks: string[], positives: string[]): any {
