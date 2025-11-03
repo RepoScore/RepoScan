@@ -3,6 +3,11 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { checkAccess, verifyTokenBalance } from "../_shared/tokenGate.ts";
 import { scanDependencyVulnerabilities, calculateVulnerabilitySummary, Vulnerability } from "../_shared/vulnerabilityScanner.ts";
 import { detectCodePatterns } from "../_shared/codePatternDetector.ts";
+import { scanConfigurationVulnerabilities } from "../_shared/configurationScanner.ts";
+import { scanSupplyChain } from "../_shared/supplyChainScanner.ts";
+import { scanGitHubSecurity } from "../_shared/githubSecurityScanner.ts";
+import { analyzeCodeQuality, CodeQualityMetrics } from "../_shared/codeQualityAnalyzer.ts";
+import { detectAdvancedPatterns } from "../_shared/advancedPatternDetector.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -30,6 +35,7 @@ interface ScoringResult {
   positive_indicators: string[];
   vulnerabilities: Vulnerability[];
   vulnerability_summary: any;
+  code_quality_metrics: CodeQualityMetrics;
 }
 
 interface SafetyBreakdown {
@@ -120,15 +126,35 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const [depVulnerabilities, codePatternVulnerabilities] = await Promise.all([
+    const [
+      depVulnerabilities,
+      codePatternVulnerabilities,
+      configVulnerabilities,
+      supplyChainVulnerabilities,
+      githubSecurityVulnerabilities,
+      advancedPatternVulnerabilities,
+      codeQualityMetrics
+    ] = await Promise.all([
       scanDependencyVulnerabilities(repoName, repoData.contents),
-      detectCodePatterns(repoName, repoData.contents)
+      detectCodePatterns(repoName, repoData.contents),
+      scanConfigurationVulnerabilities(repoName, repoData.contents),
+      scanSupplyChain(repoName, repoData.contents),
+      scanGitHubSecurity(repoName, repoData),
+      detectAdvancedPatterns(repoName, repoData.contents),
+      analyzeCodeQuality(repoName, repoData.contents)
     ]);
 
-    const allVulnerabilities = [...depVulnerabilities, ...codePatternVulnerabilities];
+    const allVulnerabilities = [
+      ...depVulnerabilities,
+      ...codePatternVulnerabilities,
+      ...configVulnerabilities,
+      ...supplyChainVulnerabilities,
+      ...githubSecurityVulnerabilities,
+      ...advancedPatternVulnerabilities
+    ];
     const vulnerabilitySummary = calculateVulnerabilitySummary(allVulnerabilities);
 
-    const scoringResult = scoreRepository(repoData, allVulnerabilities, vulnerabilitySummary);
+    const scoringResult = scoreRepository(repoData, allVulnerabilities, vulnerabilitySummary, codeQualityMetrics);
 
     const { data: scanResult, error: dbError } = await supabase
       .from("repo_scans")
@@ -146,6 +172,7 @@ Deno.serve(async (req: Request) => {
         positive_indicators: scoringResult.positive_indicators,
         vulnerabilities: scoringResult.vulnerabilities,
         vulnerability_summary: scoringResult.vulnerability_summary,
+        code_quality_metrics: scoringResult.code_quality_metrics,
       })
       .select()
       .single();
@@ -209,7 +236,7 @@ async function fetchRepoData(repoName: string, owner: string) {
   };
 }
 
-function scoreRepository(data: any, vulnerabilities: Vulnerability[], vulnerabilitySummary: any): ScoringResult {
+function scoreRepository(data: any, vulnerabilities: Vulnerability[], vulnerabilitySummary: any, codeQualityMetrics: CodeQualityMetrics): ScoringResult {
   const notes: string[] = [];
   const riskFactors: string[] = [];
   const positiveIndicators: string[] = [];
@@ -230,6 +257,16 @@ function scoreRepository(data: any, vulnerabilities: Vulnerability[], vulnerabil
   
   const confidence = calculateConfidence(data, safetyBreakdown, legitimacyBreakdown);
 
+  if (codeQualityMetrics.quality_score < 50) {
+    riskFactors.push(`Low code quality score: ${codeQualityMetrics.quality_score}`);
+  }
+
+  if (codeQualityMetrics.issues.length > 0) {
+    codeQualityMetrics.issues.slice(0, 3).forEach(issue => {
+      riskFactors.push(`Quality: ${issue}`);
+    });
+  }
+
   return {
     safety_score,
     legitimacy_score,
@@ -244,6 +281,7 @@ function scoreRepository(data: any, vulnerabilities: Vulnerability[], vulnerabil
     positive_indicators: positiveIndicators,
     vulnerabilities,
     vulnerability_summary: vulnerabilitySummary,
+    code_quality_metrics: codeQualityMetrics,
   };
 }
 

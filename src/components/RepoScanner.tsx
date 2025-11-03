@@ -5,6 +5,7 @@ import { RepoScan } from '../lib/supabase';
 import { ScoreCard } from './ScoreCard';
 import { WalletConnect } from './WalletConnect';
 import { VulnerabilityReport } from './VulnerabilityReport';
+import { CodeQualityReport } from './CodeQualityReport';
 
 export function RepoScanner() {
   const [githubUrl, setGithubUrl] = useState('');
@@ -267,6 +268,10 @@ export function RepoScanner() {
                   summary={scanResult.vulnerability_summary}
                 />
               </div>
+            )}
+
+            {scanResult.code_quality_metrics && (
+              <CodeQualityReport metrics={scanResult.code_quality_metrics} />
             )}
 
             {scanResult.risk_factors.length > 0 && (

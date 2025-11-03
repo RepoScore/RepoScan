@@ -45,6 +45,17 @@ export interface VulnerabilitySummary {
   };
 }
 
+export interface CodeQualityMetrics {
+  total_files_analyzed: number;
+  avg_file_size: number;
+  avg_complexity: number;
+  code_duplication_risk: number;
+  comment_ratio: number;
+  large_files_count: number;
+  quality_score: number;
+  issues: string[];
+}
+
 export interface RepoScan {
   id: string;
   github_url: string;
@@ -63,6 +74,7 @@ export interface RepoScan {
   positive_indicators: string[];
   vulnerabilities: Vulnerability[];
   vulnerability_summary: VulnerabilitySummary;
+  code_quality_metrics: CodeQualityMetrics;
   scan_date: string;
   created_at: string;
 }
