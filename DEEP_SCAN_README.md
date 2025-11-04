@@ -387,18 +387,7 @@ const comparison = await DeepScanService.createComparison(
 - [ ] Track scan success rates
 - [ ] Gather user feedback
 
-## Cost Considerations
-
-### Claude API Pricing (approximate)
-- Input: $3 per million tokens
-- Output: $15 per million tokens
-
-### Typical Scan Estimates
-- Small repo (< 10k lines): ~50k tokens = $0.15
-- Medium repo (10k-50k lines): ~200k tokens = $0.60
-- Large repo (50k+ lines): ~500k tokens = $1.50
-
-### Optimization Strategies
+## Optimization Strategies
 1. File filtering (exclude tests, dependencies)
 2. Incremental scanning (changed files only)
 3. Caching previous results
