@@ -83,7 +83,7 @@ export function RepoScanner() {
         <div className="flex justify-between items-center mb-4">
           <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl px-4 py-2">
             <div className="text-xs text-slate-400 mb-1">Contract Address</div>
-            <div className="text-sm text-slate-200 font-mono">TBA</div>
+            <div className="text-sm text-slate-200 font-mono">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
           </div>
           <WalletConnect
             onConnect={(address) => setWalletAddress(address)}
