@@ -1,3 +1,35 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+.scanning-background {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanning-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.15) 50%,
+    transparent 100%
+  );
+  filter: blur(30px);
+  animation: scan 4s ease-in-out infinite;
+  pointer-events: none;
+}

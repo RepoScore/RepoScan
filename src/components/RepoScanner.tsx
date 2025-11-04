@@ -78,7 +78,7 @@ export function RepoScanner() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 py-12 px-4 scanning-background">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-end mb-4">
           <WalletConnect
@@ -99,7 +99,7 @@ export function RepoScanner() {
               className="h-12 object-contain"
             />
           </div>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-4">
+          <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-4">
             Comprehensive dual-score analysis for GitHub repositories
           </p>
           <div className="flex items-center justify-center gap-4 mb-6">
@@ -107,52 +107,52 @@ export function RepoScanner() {
               href="https://x.com/RepoScanner"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors"
+              className="inline-flex items-center gap-2 text-slate-300 hover:text-blue-400 transition-colors"
             >
               <Twitter className="w-5 h-5" />
               <span className="text-sm font-medium">Follow us on X</span>
             </a>
-            <span className="text-slate-300">•</span>
+            <span className="text-slate-600">•</span>
             <a
               href="https://github.com/RepoScore/RepoScan"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
+              className="inline-flex items-center gap-2 text-slate-300 hover:text-slate-100 transition-colors"
             >
               <Github className="w-5 h-5" />
               <span className="text-sm font-medium">View on GitHub</span>
             </a>
-            <span className="text-slate-300">•</span>
+            <span className="text-slate-600">•</span>
             <a
               href="/RepoScan_Whitepaper_v1.4.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-slate-600 hover:text-emerald-600 transition-colors"
+              className="inline-flex items-center gap-2 text-slate-300 hover:text-emerald-400 transition-colors"
             >
               <FileText className="w-5 h-5" />
               <span className="text-sm font-medium">Read Whitepaper</span>
             </a>
           </div>
-          <div className="flex items-center justify-center gap-6 text-sm text-slate-600">
+          <div className="flex items-center justify-center gap-6 text-sm text-slate-300">
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-blue-600" />
+              <Shield className="w-4 h-4 text-blue-400" />
               <span>Safety Analysis</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-teal-600" />
+              <CheckCircle className="w-4 h-4 text-teal-400" />
               <span>Legitimacy Check</span>
             </div>
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-slate-600" />
+              <TrendingUp className="w-4 h-4 text-slate-400" />
               <span>Overall Score</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+        <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700/50 p-8 mb-8">
           <form onSubmit={handleScan} className="space-y-4">
             <div>
-              <label htmlFor="github-url" className="block text-sm font-semibold text-slate-700 mb-2">
+              <label htmlFor="github-url" className="block text-sm font-semibold text-slate-200 mb-2">
                 GitHub Repository URL
               </label>
               <div className="relative">
@@ -163,7 +163,7 @@ export function RepoScanner() {
                   value={githubUrl}
                   onChange={(e) => setGithubUrl(e.target.value)}
                   placeholder="https://github.com/owner/repository"
-                  className="w-full pl-12 pr-4 py-3.5 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-900 placeholder-slate-400"
+                  className="w-full pl-12 pr-4 py-3.5 border-2 border-slate-600 bg-slate-900/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-slate-100 placeholder-slate-500"
                   required
                 />
               </div>
@@ -188,26 +188,26 @@ export function RepoScanner() {
           </form>
 
           {error && (
-            <div className="mt-6 bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-start space-x-3">
-              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-red-800 font-medium">{error}</p>
+            <div className="mt-6 bg-red-900/30 border-2 border-red-500/50 rounded-xl p-4 flex items-start space-x-3">
+              <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-red-200 font-medium">{error}</p>
             </div>
           )}
         </div>
 
         {scanResult && (
           <div className="space-y-6">
-            <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700/50 p-8">
               <div className="flex items-start justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-1">
+                  <h2 className="text-2xl font-bold text-slate-100 mb-1">
                     Scan Results
                   </h2>
-                  <p className="text-slate-600 font-mono text-sm">{scanResult.repo_name}</p>
+                  <p className="text-slate-300 font-mono text-sm">{scanResult.repo_name}</p>
                 </div>
-                <div className="flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-lg">
-                  <Info className="w-4 h-4 text-slate-600" />
-                  <span className="text-sm font-medium text-slate-700">
+                <div className="flex items-center gap-2 bg-slate-900/50 px-4 py-2 rounded-lg border border-slate-700">
+                  <Info className="w-4 h-4 text-slate-400" />
+                  <span className="text-sm font-medium text-slate-300">
                     Confidence: {scanResult.confidence}%
                   </span>
                 </div>
@@ -239,32 +239,32 @@ export function RepoScanner() {
                 />
               </div>
 
-              <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-xl p-6 border-2 border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
+              <div className="bg-slate-900/50 rounded-xl p-6 border-2 border-slate-700/50">
+                <h3 className="text-lg font-semibold text-slate-100 mb-3 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5" />
                   Analysis Summary
                 </h3>
-                <p className="text-slate-700 leading-relaxed">{scanResult.analysis_summary}</p>
-                <div className="mt-4 text-xs text-slate-500">
+                <p className="text-slate-300 leading-relaxed">{scanResult.analysis_summary}</p>
+                <div className="mt-4 text-xs text-slate-400">
                   Overall Score = (Safety × 45%) + (Legitimacy × 55%)
                 </div>
               </div>
             </div>
 
             {scanResult.positive_indicators.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-xl p-8">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+              <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700/50 p-8">
+                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center space-x-2">
+                  <CheckCircle className="w-5 h-5 text-green-400" />
                   <span>Positive Indicators</span>
-                  <span className="text-sm font-normal text-slate-500">
+                  <span className="text-sm font-normal text-slate-400">
                     ({scanResult.positive_indicators.length})
                   </span>
                 </h3>
                 <div className="grid md:grid-cols-2 gap-3">
                   {scanResult.positive_indicators.map((indicator, index) => (
-                    <div key={index} className="flex items-start space-x-2 bg-green-50 border border-green-200 rounded-lg p-3">
-                      <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-slate-700">{indicator}</span>
+                    <div key={index} className="flex items-start space-x-2 bg-green-900/20 border border-green-500/30 rounded-lg p-3">
+                      <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-slate-300">{indicator}</span>
                     </div>
                   ))}
                 </div>
@@ -272,7 +272,7 @@ export function RepoScanner() {
             )}
 
             {scanResult.vulnerabilities && scanResult.vulnerabilities.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-xl p-8">
+              <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700/50 p-8">
                 <VulnerabilityReport
                   vulnerabilities={scanResult.vulnerabilities}
                   summary={scanResult.vulnerability_summary}
@@ -285,27 +285,27 @@ export function RepoScanner() {
             )}
 
             {scanResult.risk_factors.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-xl p-8">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center space-x-2">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
+              <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700/50 p-8">
+                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center space-x-2">
+                  <AlertTriangle className="w-5 h-5 text-red-400" />
                   <span>Risk Factors</span>
-                  <span className="text-sm font-normal text-slate-500">
+                  <span className="text-sm font-normal text-slate-400">
                     ({scanResult.risk_factors.length})
                   </span>
                 </h3>
                 <div className="grid md:grid-cols-2 gap-3">
                   {scanResult.risk_factors.map((risk, index) => (
-                    <div key={index} className="flex items-start space-x-2 bg-red-50 border border-red-200 rounded-lg p-3">
-                      <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-slate-700">{risk}</span>
+                    <div key={index} className="flex items-start space-x-2 bg-red-900/20 border border-red-500/30 rounded-lg p-3">
+                      <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-slate-300">{risk}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <div className="text-center text-sm text-slate-500">
+            <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700/50 p-6">
+              <div className="text-center text-sm text-slate-400">
                 <p className="mb-1">
                   Scanned on {new Date(scanResult.scan_date).toLocaleString()}
                 </p>
