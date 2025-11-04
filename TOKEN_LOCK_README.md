@@ -220,34 +220,6 @@ async function hasUnlimitedAccess(walletAddress: string): Promise<boolean> {
 }
 ```
 
-## What This System Does NOT Do
-
-To be absolutely clear, RepoScan's token lock system:
-
-- ❌ Does NOT generate rewards, interest, or yield
-- ❌ Does NOT have multiple tiers (Bronze, Silver, Gold, etc.)
-- ❌ Does NOT offer referral bonuses
-- ❌ Does NOT have loyalty programs
-- ❌ Does NOT use ERC-20 tokens (uses SPL tokens on Solana)
-- ❌ Does NOT auto-compound anything
-- ❌ Does NOT provide discount percentages
-- ❌ Does NOT have variable lock durations (always 30 days)
-- ❌ Does NOT have variable lock amounts (always 1M tokens)
-- ❌ Does NOT allow lock extension
-- ❌ Does NOT have NFT badges or achievements
-
-## What This System DOES Do
-
-RepoScan's token lock system:
-
-- ✅ Locks exactly 1,000,000 REPOSCAN SPL tokens
-- ✅ Locks for exactly 30 days
-- ✅ Grants unlimited access to all platform features during lock period
-- ✅ Returns tokens automatically after 30 days
-- ✅ Tracks lock history for audit purposes
-- ✅ Uses Solana blockchain and SPL token standard
-- ✅ Enforces time-based access control
-
 ## Platform Features Unlocked by Token Lock
 
 With an active token lock, users get:
