@@ -8,7 +8,7 @@ import { VulnerabilityReport } from './VulnerabilityReport';
 import { CodeQualityReport } from './CodeQualityReport';
 
 export function RepoScanner() {
-  const [githubUrl, setGithubUrl] = useState('');
+  const [githubUrl, setGithubUrl] = useState('https://github.com/RepoScore/RepoScan');
   const [loading, setLoading] = useState(false);
   const [scanResult, setScanResult] = useState<RepoScan | null>(null);
   const [error, setError] = useState<string | null>(null);
