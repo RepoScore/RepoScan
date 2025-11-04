@@ -107,7 +107,7 @@ For premium features:
 
 1. Click the RepoScan icon
 2. Click "Connect Wallet"
-3. Follow MetaMask prompts to connect
+3. Follow Phantom wallet prompts to connect
 4. Your wallet address will be stored locally
 
 ## Updating the Extension

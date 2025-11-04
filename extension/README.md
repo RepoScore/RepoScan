@@ -24,7 +24,7 @@ The RepoScan Chrome Extension seamlessly integrates with GitHub, allowing you to
 - Connect your Web3 wallet for advanced features
 - Access token-gated premium scans
 - Track your scan history
-- Manage token locks and rewards
+- Manage token locks
 
 ### ⚡ Performance
 - **Smart Caching**: Results cached for 5 minutes to reduce API calls
@@ -176,7 +176,7 @@ const SUPABASE_ANON_KEY = 'your-supabase-anon-key';
 - `GET /rest/v1/vulnerabilities` - Get vulnerability details
 - `GET /rest/v1/code_quality_issues` - Get code quality issues
 - `GET /rest/v1/deep_scans` - Get deep scan results
-- `GET /rest/v1/token_lock_tiers` - Get token lock tiers
+- `GET /rest/v1/token_locks` - Get user token lock data
 
 ## Development
 

@@ -13,33 +13,11 @@ export interface TokenLock {
   updated_at: string;
 }
 
-export interface TokenLockTier {
-  id: string;
-  tier_name: string;
-  min_lock_amount: number;
-  min_lock_days: number;
-  benefits: string[];
-  discount_percentage: number;
-  priority_support: boolean;
-  api_rate_limit: number;
-  created_at: string;
-}
-
-export interface TokenLockReward {
-  id: string;
-  lock_id: string;
-  reward_type: 'interest' | 'bonus' | 'referral' | 'loyalty';
-  reward_amount: number;
-  reward_date: string;
-  claimed: boolean;
-  claimed_at?: string;
-  created_at: string;
-}
 
 export interface TokenLockHistory {
   id: string;
   lock_id: string;
-  action: 'created' | 'extended' | 'withdrawn' | 'claimed' | 'expired';
+  action: 'created' | 'extended' | 'withdrawn' | 'expired';
   previous_value?: Record<string, any>;
   new_value?: Record<string, any>;
   actor_address: string;
@@ -56,21 +34,9 @@ export interface CreateTokenLockParams {
 export interface TokenLockStats {
   total_locked: number;
   active_locks_count: number;
-  total_rewards_earned: number;
-  current_tier?: TokenLockTier;
 }
 
 export class TokenLockService {
-  static async getTiers(): Promise<TokenLockTier[]> {
-    const { data, error } = await supabase
-      .from('token_lock_tiers')
-      .select('*')
-      .order('min_lock_amount', { ascending: true });
-
-    if (error) throw error;
-    return data || [];
-  }
-
   static async createLock(params: CreateTokenLockParams): Promise<TokenLock> {
     const lockEndDate = new Date();
     lockEndDate.setDate(lockEndDate.getDate() + params.lock_duration_days);
@@ -166,27 +132,6 @@ export class TokenLockService {
     return data;
   }
 
-  static async getLockRewards(lockId: string): Promise<TokenLockReward[]> {
-    const { data, error } = await supabase
-      .from('token_lock_rewards')
-      .select('*')
-      .eq('lock_id', lockId)
-      .order('reward_date', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
-  }
-
-  static async claimReward(rewardId: string): Promise<void> {
-    const { error } = await supabase
-      .from('token_lock_rewards')
-      .update({ claimed: true, claimed_at: new Date().toISOString() })
-      .eq('id', rewardId)
-      .eq('claimed', false);
-
-    if (error) throw error;
-  }
-
   static async getLockHistory(lockId: string): Promise<TokenLockHistory[]> {
     const { data, error } = await supabase
       .from('token_lock_history')
@@ -204,41 +149,10 @@ export class TokenLockService {
     const totalLocked = locks.reduce((sum, lock) => sum + Number(lock.token_amount), 0);
     const activeLockCount = locks.length;
 
-    const { data: rewardsData } = await supabase
-      .from('token_lock_rewards')
-      .select('reward_amount')
-      .in('lock_id', locks.map(l => l.id))
-      .eq('claimed', true);
-
-    const totalRewards = rewardsData?.reduce((sum, r) => sum + Number(r.reward_amount), 0) || 0;
-
-    const tiers = await this.getTiers();
-    const currentTier = this.calculateUserTier(totalLocked, locks, tiers);
-
     return {
       total_locked: totalLocked,
-      active_locks_count: activeLockCount,
-      total_rewards_earned: totalRewards,
-      current_tier: currentTier
+      active_locks_count: activeLockCount
     };
-  }
-
-  static calculateUserTier(
-    totalLocked: number,
-    locks: TokenLock[],
-    tiers: TokenLockTier[]
-  ): TokenLockTier | undefined {
-    if (locks.length === 0) return undefined;
-
-    const maxLockDays = Math.max(...locks.map(l => l.lock_duration_days));
-
-    const eligibleTiers = tiers.filter(
-      tier => totalLocked >= tier.min_lock_amount && maxLockDays >= tier.min_lock_days
-    );
-
-    return eligibleTiers.length > 0
-      ? eligibleTiers[eligibleTiers.length - 1]
-      : undefined;
   }
 
   static isLockExpired(lock: TokenLock): boolean {

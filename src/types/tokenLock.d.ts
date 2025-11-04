@@ -5,9 +5,7 @@ export interface TokenLockConfig {
   max_lock_amount: number;
   min_lock_days: number;
   max_lock_days: number;
-  interest_rate: number;
   early_withdrawal_penalty: number;
-  reward_distribution_frequency: 'daily' | 'weekly' | 'monthly';
   enabled: boolean;
 }
 
@@ -24,7 +22,7 @@ export interface TokenLockTransaction {
 export interface TokenLockNotification {
   id: string;
   user_address: string;
-  type: 'lock_created' | 'lock_expiring' | 'reward_available' | 'lock_expired';
+  type: 'lock_created' | 'lock_expiring' | 'lock_expired';
   message: string;
   read: boolean;
   created_at: string;

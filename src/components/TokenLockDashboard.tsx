@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Lock, TrendingUp, Award, Clock, Shield, Zap, CheckCircle, AlertCircle } from 'lucide-react';
-import { TokenLockService, TokenLock, TokenLockTier, TokenLockStats } from '../lib/tokenLock';
+import { Lock, Clock, Shield, AlertCircle } from 'lucide-react';
+import { TokenLockService, TokenLock, TokenLockStats } from '../lib/tokenLock';
 
 interface TokenLockDashboardProps {
   walletAddress: string | null;
 }
 
 export function TokenLockDashboard({ walletAddress }: TokenLockDashboardProps) {
-  const [tiers, setTiers] = useState<TokenLockTier[]>([]);
   const [activeLocks, setActiveLocks] = useState<TokenLock[]>([]);
   const [stats, setStats] = useState<TokenLockStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedTier, setSelectedTier] = useState<TokenLockTier | null>(null);
   const [lockAmount, setLockAmount] = useState('');
   const [lockDuration, setLockDuration] = useState(30);
 
@@ -22,8 +20,6 @@ export function TokenLockDashboard({ walletAddress }: TokenLockDashboardProps) {
   const loadData = async () => {
     try {
       setLoading(true);
-      const tiersData = await TokenLockService.getTiers();
-      setTiers(tiersData);
 
       if (walletAddress) {
         const locksData = await TokenLockService.getActiveLocks(walletAddress);
@@ -38,25 +34,6 @@ export function TokenLockDashboard({ walletAddress }: TokenLockDashboardProps) {
     }
   };
 
-  const getTierColor = (tierName: string) => {
-    switch (tierName.toLowerCase()) {
-      case 'bronze': return 'from-amber-600 to-amber-800';
-      case 'silver': return 'from-slate-400 to-slate-600';
-      case 'gold': return 'from-yellow-400 to-yellow-600';
-      case 'platinum': return 'from-cyan-400 to-blue-600';
-      default: return 'from-slate-600 to-slate-800';
-    }
-  };
-
-  const getTierBorderColor = (tierName: string) => {
-    switch (tierName.toLowerCase()) {
-      case 'bronze': return 'border-amber-500/40';
-      case 'silver': return 'border-slate-400/40';
-      case 'gold': return 'border-yellow-500/40';
-      case 'platinum': return 'border-cyan-500/40';
-      default: return 'border-slate-500/40';
-    }
-  };
 
   if (!walletAddress) {
     return (
@@ -80,7 +57,7 @@ export function TokenLockDashboard({ walletAddress }: TokenLockDashboardProps) {
   return (
     <div className="space-y-6">
       {stats && stats.active_locks_count > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6">
             <div className="flex items-center gap-3 mb-2">
               <Lock className="w-5 h-5 text-blue-400" />
@@ -100,94 +77,13 @@ export function TokenLockDashboard({ walletAddress }: TokenLockDashboardProps) {
             <div className="text-2xl font-bold text-slate-200">{stats.active_locks_count}</div>
             <div className="text-xs text-slate-500 mt-1">Current locks</div>
           </div>
-
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <Award className="w-5 h-5 text-yellow-400" />
-              <span className="text-sm text-slate-400">Rewards Earned</span>
-            </div>
-            <div className="text-2xl font-bold text-slate-200">
-              {TokenLockService.formatTokenAmount(stats.total_rewards_earned)}
-            </div>
-            <div className="text-xs text-slate-500 mt-1">Total claimed</div>
-          </div>
-
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <TrendingUp className="w-5 h-5 text-purple-400" />
-              <span className="text-sm text-slate-400">Current Tier</span>
-            </div>
-            <div className="text-2xl font-bold text-slate-200">
-              {stats.current_tier?.tier_name || 'None'}
-            </div>
-            <div className="text-xs text-slate-500 mt-1">
-              {stats.current_tier ? `${stats.current_tier.discount_percentage}% discount` : 'Lock tokens to unlock tiers'}
-            </div>
-          </div>
         </div>
       )}
 
       <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700/50 p-8">
         <div className="flex items-center gap-3 mb-6">
           <Lock className="w-6 h-6 text-blue-400" />
-          <h2 className="text-2xl font-bold text-slate-100">Token Lock Tiers</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {tiers.map((tier) => (
-            <div
-              key={tier.id}
-              className={`rounded-xl border-2 ${getTierBorderColor(tier.tier_name)} bg-slate-900/50 p-6 hover:scale-105 transition-transform cursor-pointer ${
-                selectedTier?.id === tier.id ? 'ring-2 ring-blue-500' : ''
-              }`}
-              onClick={() => setSelectedTier(tier)}
-            >
-              <div className={`bg-gradient-to-r ${getTierColor(tier.tier_name)} rounded-lg px-3 py-1 text-white text-sm font-bold inline-block mb-4`}>
-                {tier.tier_name}
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div>
-                  <div className="text-xs text-slate-400">Min Lock Amount</div>
-                  <div className="text-lg font-bold text-slate-200">
-                    {TokenLockService.formatTokenAmount(tier.min_lock_amount)}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-slate-400">Min Duration</div>
-                  <div className="text-lg font-bold text-slate-200">{tier.min_lock_days} days</div>
-                </div>
-
-                <div>
-                  <div className="text-xs text-slate-400">Benefits</div>
-                  <div className="text-lg font-bold text-green-400">{tier.discount_percentage}% Discount</div>
-                </div>
-              </div>
-
-              <div className="space-y-2 border-t border-slate-700/50 pt-4">
-                {tier.benefits.slice(0, 3).map((benefit, idx) => (
-                  <div key={idx} className="flex items-start gap-2 text-xs text-slate-300">
-                    <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0 mt-0.5" />
-                    <span>{benefit}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-slate-700/50">
-                <div className="flex items-center gap-2 text-xs text-slate-400">
-                  <Zap className="w-3 h-3" />
-                  <span>{tier.api_rate_limit.toLocaleString()} API calls/day</span>
-                </div>
-                {tier.priority_support && (
-                  <div className="flex items-center gap-2 text-xs text-blue-400 mt-2">
-                    <Shield className="w-3 h-3" />
-                    <span>Priority Support</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+          <h2 className="text-2xl font-bold text-slate-100">Token Lock System</h2>
         </div>
 
         <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-6">
@@ -240,8 +136,8 @@ export function TokenLockDashboard({ walletAddress }: TokenLockDashboardProps) {
                 <p className="font-semibold mb-1">Token Lock Feature Status</p>
                 <p>
                   The token lock mechanism is currently under development. Once the smart contract
-                  is deployed and integrated, users will be able to lock tokens to earn rewards
-                  and access tier-based benefits.
+                  is deployed and integrated, users will be able to lock 1,000,000 tokens for 30 days
+                  to access DeepScan features without paying per scan.
                 </p>
               </div>
             </div>
@@ -288,7 +184,7 @@ export function TokenLockDashboard({ walletAddress }: TokenLockDashboardProps) {
 
                   <div>
                     <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
-                      <TrendingUp className="w-3 h-3" />
+                      <Clock className="w-3 h-3" />
                       <span>Remaining Time</span>
                     </div>
                     <div className="text-sm font-semibold text-slate-200">
@@ -298,7 +194,7 @@ export function TokenLockDashboard({ walletAddress }: TokenLockDashboardProps) {
 
                   <div>
                     <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
-                      <Award className="w-3 h-3" />
+                      <Clock className="w-3 h-3" />
                       <span>End Date</span>
                     </div>
                     <div className="text-sm font-semibold text-slate-200">
