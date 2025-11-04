@@ -269,7 +269,7 @@ Required permissions explained:
 ## Roadmap
 
 ### v1.1 - Wallet Integration
-- [ ] MetaMask connection
+- [ ] Phantom connection
 - [ ] Token-gated scans
 - [ ] User dashboard
 - [ ] Scan history
