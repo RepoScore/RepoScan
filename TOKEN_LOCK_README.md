@@ -2,11 +2,25 @@
 
 ## Overview
 
-The Token Lock System is a comprehensive staking mechanism that allows REPOSCAN token holders to lock their tokens for specified periods in exchange for rewards and tier-based benefits.
+The Token Lock System allows REPOSCAN SPL token holders to lock tokens for unlimited platform access. This is a simple, single-tier system where users lock 1,000,000 REPOSCAN tokens for 30 days to gain full access to all platform features.
 
 ## Status: Development Complete - Integration Pending
 
-The token lock mechanism has been fully built and is ready for integration once the smart contract is deployed. All frontend components, database schema, and service logic are in place.
+The token lock mechanism has been fully built and is ready for integration once the Solana smart contract is deployed. All frontend components, database schema, and service logic are in place.
+
+## Token Lock Requirements
+
+**Single Access Tier:**
+- **Lock Amount**: 1,000,000 REPOSCAN SPL tokens
+- **Lock Duration**: 30 days
+- **Benefit**: Unlimited access to all RepoScan features
+
+**Important Notes:**
+- No tiered system - all users get the same unlimited access
+- No rewards, interest, or token generation
+- No referral bonuses or loyalty programs
+- Lock is time-based only - tokens are returned after 30 days
+- SPL tokens on Solana blockchain (NOT ERC-20)
 
 ## Architecture
 
@@ -15,26 +29,25 @@ The token lock mechanism has been fully built and is ready for integration once 
 The system uses four main tables:
 
 1. **token_locks**: Core table storing lock information
-   - User wallet address
-   - Token amount locked
-   - Lock duration and dates
+   - User wallet address (Solana wallet)
+   - Token amount locked (always 1,000,000 tokens)
+   - Lock duration (always 30 days)
+   - Lock start and end dates
    - Status (active, completed, withdrawn)
-   - Transaction hash
+   - Transaction hash (Solana transaction signature)
 
-2. **token_lock_tiers**: Predefined tier levels with benefits
-   - Bronze, Silver, Gold, Platinum tiers
-   - Minimum lock amounts and durations
-   - Discount percentages
-   - API rate limits
-   - Priority support flags
+2. **token_lock_tiers**: Single tier configuration
+   - Stores the single "Unlimited Access" tier
+   - Required amount: 1,000,000 tokens
+   - Required duration: 30 days
+   - No discounts or rate limits - just unlimited access
 
-3. **token_lock_rewards**: Tracks rewards earned
-   - Lock reference
-   - Reward type (interest, bonus, referral, loyalty)
-   - Claimed status
+3. **token_lock_rewards**: Not used (kept for database compatibility)
+   - RepoScan does not distribute rewards
+   - Table exists but will remain empty
 
 4. **token_lock_history**: Audit log of all actions
-   - Lock lifecycle tracking
+   - Lock lifecycle tracking (created, expired, withdrawn)
    - Previous and new values
    - Actor addresses
 
@@ -50,38 +63,42 @@ The system uses four main tables:
 
 The `TokenLockService` class provides:
 
-- `getTiers()`: Fetch all available tiers
-- `createLock()`: Create a new token lock
+- `getTiers()`: Fetch tier configuration (single tier)
+- `createLock()`: Create a new 30-day token lock
 - `getUserLocks()`: Get user's lock history
 - `getActiveLocks()`: Get user's active locks
-- `withdrawLock()`: Withdraw tokens from lock
-- `extendLock()`: Extend lock duration
-- `getLockRewards()`: Get rewards for a lock
-- `claimReward()`: Claim earned rewards
-- `getUserStats()`: Get comprehensive user statistics
-- Helper methods for formatting and calculations
+- `withdrawLock()`: Withdraw tokens after lock expires
+- `getLockHistory()`: Get audit trail for locks
+- `getUserStats()`: Get user lock statistics
+- `isLockExpired()`: Check if lock period has ended
+- `getRemainingDays()`: Calculate days remaining in lock period
 
-## Tier System
+**Note**: Methods like `extendLock()`, `getLockRewards()`, and `claimReward()` exist for database compatibility but are not used in RepoScan's simple lock system.
 
-### Bronze Tier
-- **Minimum Lock**: 1 token for 30 days
-- **Benefits**: 5% discount, basic analytics, email support
-- **API Rate Limit**: 100 calls/day
+## Access System
 
-### Silver Tier
-- **Minimum Lock**: 5 tokens for 90 days
-- **Benefits**: 10% discount, advanced analytics, priority email, API access
-- **API Rate Limit**: 500 calls/day
+### Unlimited Access Tier
 
-### Gold Tier
-- **Minimum Lock**: 10 tokens for 180 days
-- **Benefits**: 20% discount, premium analytics, priority support, early features
-- **API Rate Limit**: 1,000 calls/day
+**Requirements:**
+- Lock 1,000,000 REPOSCAN SPL tokens
+- Lock period: 30 days
 
-### Platinum Tier
-- **Minimum Lock**: 50 tokens for 365 days
-- **Benefits**: 30% discount, enterprise analytics, 24/7 support, custom integrations
-- **API Rate Limit**: 5,000 calls/day
+**Benefits:**
+- Full access to all RepoScan features:
+  - Unlimited repository scans
+  - Deep scan with Claude AI
+  - Vulnerability reports
+  - Code quality analysis
+  - Chrome extension premium features
+  - API access (no rate limits)
+  - Priority support
+
+**No Additional Benefits:**
+- No token rewards or interest
+- No discount percentages
+- No tier progression
+- No referral bonuses
+- All users with active locks have identical access
 
 ## Components
 
@@ -89,72 +106,69 @@ The `TokenLockService` class provides:
 
 User-facing component showing:
 - Wallet connection requirement
-- Statistics dashboard (total locked, active locks, rewards earned, current tier)
-- Visual tier cards with benefits
-- Lock creation interface (disabled until contract deployment)
-- Active locks list with remaining time
-- Status indicators
+- Current lock status and remaining days
+- Lock creation interface (disabled until Solana contract deployment)
+- Active lock details
+- "Coming Soon" indicators
 
 ### TokenLockAdmin (`src/components/TokenLockAdmin.tsx`)
 
 Administrative interface for:
-- System-wide statistics
-- Tier management (view/edit)
+- System-wide statistics (total locks, total value locked, active users)
+- Lock monitoring
 - Configuration settings
-- User monitoring
 - Currently disabled for modifications until contract is live
 
 ## Integration Checklist
 
 When ready to activate the token lock system:
 
-### 1. Smart Contract Deployment
-- [ ] Deploy ERC-20 token contract
-- [ ] Deploy token lock contract
-- [ ] Verify contracts on block explorer
+### 1. Solana Smart Contract Deployment
+- [ ] Deploy REPOSCAN SPL token contract
+- [ ] Deploy token lock program on Solana
+- [ ] Verify program on Solana Explorer
 - [ ] Test lock/unlock functionality
-- [ ] Test reward distribution
+- [ ] Verify 30-day time lock mechanism
 
 ### 2. Frontend Integration
-- [ ] Update contract address in environment variables
-- [ ] Connect Web3 provider
-- [ ] Implement token approval flow
-- [ ] Connect lock creation to smart contract
-- [ ] Connect withdrawal to smart contract
-- [ ] Implement reward claiming
+- [ ] Update program address in environment variables
+- [ ] Connect Solana wallet adapter (Phantom, Solflare, etc.)
+- [ ] Implement SPL token approval flow
+- [ ] Connect lock creation to Solana program
+- [ ] Connect withdrawal to Solana program
 - [ ] Add transaction status monitoring
+- [ ] Display Solana transaction signatures
 
 ### 3. Database Updates
 - [ ] Run migration: `20251104000000_create_token_lock_system.sql`
 - [ ] Verify RLS policies
-- [ ] Test tier queries
 - [ ] Verify triggers are working
+- [ ] Update tier table with single "Unlimited Access" tier
 
 ### 4. Testing
 - [ ] Test lock creation flow
-- [ ] Test lock extension
-- [ ] Test withdrawal
-- [ ] Test reward claiming
-- [ ] Test tier calculations
+- [ ] Test 30-day expiration
+- [ ] Test withdrawal after expiration
+- [ ] Test access control (locked users get unlimited access)
 - [ ] Test permission boundaries
 - [ ] Load testing with multiple users
 
 ### 5. UI/UX Activation
 - [ ] Enable lock creation form
-- [ ] Enable admin controls
 - [ ] Add real-time transaction feedback
-- [ ] Add wallet balance checks
+- [ ] Add wallet balance checks (verify 1M tokens available)
 - [ ] Implement error handling for failed transactions
 - [ ] Add success notifications
+- [ ] Show remaining lock days
 
 ## Environment Variables
 
 Add these to `.env` when ready to activate:
 
 ```env
-VITE_TOKEN_CONTRACT_ADDRESS=0x...
-VITE_LOCK_CONTRACT_ADDRESS=0x...
-VITE_CHAIN_ID=1
+VITE_SOLANA_NETWORK=mainnet-beta
+VITE_REPOSCAN_TOKEN_MINT=<SPL_token_mint_address>
+VITE_LOCK_PROGRAM_ID=<Solana_program_id>
 VITE_TOKEN_LOCK_ENABLED=false
 ```
 
@@ -162,60 +176,117 @@ VITE_TOKEN_LOCK_ENABLED=false
 
 The system uses Supabase's auto-generated REST API:
 
-- `GET /token_lock_tiers` - Fetch all tiers
+- `GET /token_lock_tiers` - Fetch tier configuration
 - `GET /token_locks?wallet_address=eq.{address}` - Get user locks
 - `POST /token_locks` - Create new lock
-- `PATCH /token_locks?id=eq.{id}` - Update lock
-- `GET /token_lock_rewards?lock_id=eq.{id}` - Get rewards
-- `PATCH /token_lock_rewards` - Claim reward
+- `PATCH /token_locks?id=eq.{id}` - Update lock status
+- `GET /token_lock_history?lock_id=eq.{id}` - Get lock history
 
 ## Usage Example
 
 ```typescript
 import { TokenLockService } from './lib/tokenLock';
 
-// Get all tiers
-const tiers = await TokenLockService.getTiers();
-
-// Create a lock (requires smart contract integration)
+// Create a lock (requires Solana smart contract integration)
 const lock = await TokenLockService.createLock({
-  wallet_address: userAddress,
-  token_amount: 10000000000000000000, // 10 tokens in wei
-  lock_duration_days: 90,
-  transaction_hash: txHash
+  wallet_address: solanaWalletAddress,
+  token_amount: 1000000000000, // 1M tokens (with decimals)
+  lock_duration_days: 30,
+  transaction_hash: solanaSignature
 });
 
-// Get user stats
-const stats = await TokenLockService.getUserStats(userAddress);
-console.log(`Total locked: ${stats.total_locked}`);
-console.log(`Current tier: ${stats.current_tier?.tier_name}`);
+// Check if user has active lock
+const activeLocks = await TokenLockService.getActiveLocks(walletAddress);
+const hasAccess = activeLocks.length > 0;
+
+// Get days remaining
+if (activeLocks.length > 0) {
+  const daysRemaining = TokenLockService.getRemainingDays(activeLocks[0]);
+  console.log(`Access expires in ${daysRemaining} days`);
+}
 ```
 
-## Reward Calculation
+## Access Control
 
-Rewards are calculated based on:
-- Lock duration (longer = better rates)
-- Lock amount (more tokens = more rewards)
-- Tier level (higher tiers get bonus multipliers)
-- Loyalty bonuses for long-term holders
+The platform checks for active token locks to grant access:
 
-## Future Enhancements
+```typescript
+// Check if user has unlimited access
+async function hasUnlimitedAccess(walletAddress: string): Promise<boolean> {
+  const activeLocks = await TokenLockService.getActiveLocks(walletAddress);
 
-- [ ] NFT badges for tier achievements
-- [ ] Referral rewards system
-- [ ] Auto-compound rewards option
-- [ ] Lock portfolio analytics
-- [ ] Mobile app support
-- [ ] Social sharing features
-- [ ] Leaderboard for top lockers
+  // User needs at least one active lock for access
+  return activeLocks.length > 0;
+}
+```
+
+## What This System Does NOT Do
+
+To be absolutely clear, RepoScan's token lock system:
+
+- ❌ Does NOT generate rewards, interest, or yield
+- ❌ Does NOT have multiple tiers (Bronze, Silver, Gold, etc.)
+- ❌ Does NOT offer referral bonuses
+- ❌ Does NOT have loyalty programs
+- ❌ Does NOT use ERC-20 tokens (uses SPL tokens on Solana)
+- ❌ Does NOT auto-compound anything
+- ❌ Does NOT provide discount percentages
+- ❌ Does NOT have variable lock durations (always 30 days)
+- ❌ Does NOT have variable lock amounts (always 1M tokens)
+- ❌ Does NOT allow lock extension
+- ❌ Does NOT have NFT badges or achievements
+
+## What This System DOES Do
+
+RepoScan's token lock system:
+
+- ✅ Locks exactly 1,000,000 REPOSCAN SPL tokens
+- ✅ Locks for exactly 30 days
+- ✅ Grants unlimited access to all platform features during lock period
+- ✅ Returns tokens automatically after 30 days
+- ✅ Tracks lock history for audit purposes
+- ✅ Uses Solana blockchain and SPL token standard
+- ✅ Enforces time-based access control
+
+## Platform Features Unlocked by Token Lock
+
+With an active token lock, users get:
+
+1. **Unlimited Repository Scans**
+   - No daily or monthly limits
+   - Scan any GitHub repository
+   - Full vulnerability reports
+
+2. **Deep Scan with Claude AI**
+   - Advanced AI-powered code analysis
+   - Architecture insights
+   - Performance recommendations
+
+3. **Chrome Extension Premium**
+   - All extension features unlocked
+   - Instant scan results on GitHub
+
+4. **API Access**
+   - Full REST API access
+   - No rate limiting
+   - Programmatic scanning
+
+5. **Priority Support**
+   - Faster response times
+   - Direct support channel
 
 ## Support
 
 For questions about the token lock system:
 - Documentation: This file
 - Technical issues: Check database logs and RLS policies
-- Smart contract issues: Review contract events and transactions
+- Smart contract issues: Review Solana Explorer for transaction status
+- Wallet issues: Ensure using Solana-compatible wallet (Phantom, Solflare)
 
 ## License
 
 MIT License - See LICENSE file for details
+
+---
+
+**Remember**: This is a simple access control system, not a DeFi yield product. Lock tokens → Get access → Tokens returned after 30 days.
