@@ -149,7 +149,7 @@ RepoScan is built on a modern, scalable architecture:
 
 ## 🔹 Access Model & Token Economics
 
-RepoScan operates on a dual-tier system designed to sustain long-term development while keeping essential functionality accessible to everyone.
+RepoScan operates on a dual-access model designed to sustain long-term development while keeping essential functionality accessible to everyone.
 
 ### 🕒 Launch Phase: Free Access
 
@@ -161,17 +161,17 @@ RepoScan operates on a dual-tier system designed to sustain long-term developmen
 
 ### ⚙️ Post-Launch Model
 
-RepoScan operates on a dual-access system with two distinct scanning tiers:
+RepoScan operates on a dual-access system with two scanning options:
 
-| Tier | Scan Type | Token Requirement | Description |
-|------|-----------|-------------------|-------------|
-| **Free Tier (v1)** | Quick Scan | Free | Basic static and dependency analysis with standard Safety & Legitimacy scoring |
-| **Premium Tier (v2)** | DeepScan | 100 tokens per scan or lock 1,000,000 tokens for 30 days | Advanced LLM-assisted scanning powered by Claude API, with natural language risk summaries and deeper AI insights |
+| Access Level | Scan Type | Token Requirement | Description |
+|--------------|-----------|-------------------|-------------|
+| **Free Access (v1)** | Quick Scan | Free | Basic static and dependency analysis with standard Safety & Legitimacy scoring |
+| **Premium Access (v2)** | DeepScan | 100 tokens per scan or lock 1,000,000 tokens for 30 days | Advanced LLM-assisted scanning powered by Claude API, with natural language risk summaries and deeper AI insights |
 
 ### 🔁 Payment Mechanics
 
 **Burn Mechanism**:
-Tokens burned per scan are permanently removed from circulation, creating a deflationary model that rewards long-term holders.
+Tokens burned per scan are permanently removed from circulation, creating a deflationary model that benefits long-term token holders.
 
 **Lock Mechanism**:
 Locked tokens remain in the user's wallet but cannot be moved or traded for the 30-day duration. At the end of the lock period, the tokens unlock automatically.

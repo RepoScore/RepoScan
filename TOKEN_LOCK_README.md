@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Token Lock System allows REPOSCAN SPL token holders to lock tokens for unlimited platform access. This is a simple, single-tier system where users lock 1,000,000 REPOSCAN tokens for 30 days to gain full access to all platform features.
+The Token Lock System allows REPOSCAN SPL token holders to lock tokens for unlimited platform access. Users lock 1,000,000 REPOSCAN tokens for 30 days to gain full access to all platform features.
 
 ## Status: Development Complete - Integration Pending
 
@@ -10,13 +10,13 @@ The token lock mechanism has been fully built and is ready for integration once 
 
 ## Token Lock Requirements
 
-**Single Access Tier:**
+**Lock Requirements:**
 - **Lock Amount**: 1,000,000 REPOSCAN SPL tokens
 - **Lock Duration**: 30 days
 - **Benefit**: Unlimited access to all RepoScan features
 
 **Important Notes:**
-- No tiered system - all users get the same unlimited access
+- Single fixed requirement - all users lock the same amount for the same duration
 - No rewards, interest, or token generation
 - No referral bonuses or loyalty programs
 - Lock is time-based only - tokens are returned after 30 days
@@ -36,11 +36,11 @@ The system uses four main tables:
    - Status (active, completed, withdrawn)
    - Transaction hash (Solana transaction signature)
 
-2. **token_lock_tiers**: Single tier configuration
-   - Stores the single "Unlimited Access" tier
+2. **token_lock_config**: System configuration
+   - Stores the lock requirements
    - Required amount: 1,000,000 tokens
    - Required duration: 30 days
-   - No discounts or rate limits - just unlimited access
+   - No variable settings - just unlimited access
 
 3. **token_lock_rewards**: Not used (kept for database compatibility)
    - RepoScan does not distribute rewards
@@ -55,7 +55,7 @@ The system uses four main tables:
 
 - **Row Level Security (RLS)**: All tables have RLS enabled
 - Users can only view/modify their own locks
-- Public read access to tier information
+- Public read access to configuration information
 - Automated history tracking via triggers
 - Secure wallet address verification
 
@@ -63,7 +63,6 @@ The system uses four main tables:
 
 The `TokenLockService` class provides:
 
-- `getTiers()`: Fetch tier configuration (single tier)
 - `createLock()`: Create a new 30-day token lock
 - `getUserLocks()`: Get user's lock history
 - `getActiveLocks()`: Get user's active locks
@@ -73,13 +72,13 @@ The `TokenLockService` class provides:
 - `isLockExpired()`: Check if lock period has ended
 - `getRemainingDays()`: Calculate days remaining in lock period
 
-**Note**: Methods like `extendLock()`, `getLockRewards()`, and `claimReward()` exist for database compatibility but are not used in RepoScan's simple lock system.
+**Note**: Methods like `extendLock()` exist for potential future use but are not currently utilized in RepoScan's lock system.
 
 ## Access System
 
-### Unlimited Access Tier
+### Lock Requirements
 
-**Requirements:**
+**What You Need:**
 - Lock 1,000,000 REPOSCAN SPL tokens
 - Lock period: 30 days
 
@@ -96,7 +95,7 @@ The `TokenLockService` class provides:
 **No Additional Benefits:**
 - No token rewards or interest
 - No discount percentages
-- No tier progression
+- No variable lock levels or options
 - No referral bonuses
 - All users with active locks have identical access
 
@@ -143,7 +142,7 @@ When ready to activate the token lock system:
 - [ ] Run migration: `20251104000000_create_token_lock_system.sql`
 - [ ] Verify RLS policies
 - [ ] Verify triggers are working
-- [ ] Update tier table with single "Unlimited Access" tier
+- [ ] Configure system with fixed lock requirements
 
 ### 4. Testing
 - [ ] Test lock creation flow
@@ -176,7 +175,6 @@ VITE_TOKEN_LOCK_ENABLED=false
 
 The system uses Supabase's auto-generated REST API:
 
-- `GET /token_lock_tiers` - Fetch tier configuration
 - `GET /token_locks?wallet_address=eq.{address}` - Get user locks
 - `POST /token_locks` - Create new lock
 - `PATCH /token_locks?id=eq.{id}` - Update lock status

@@ -98,11 +98,8 @@ function getRpcUrl(chainId: number): string {
 
 export function getChainName(chainId: number): string {
   const chainNames: Record<number, string> = {
-    1: 'Ethereum',
-    137: 'Polygon',
-    8453: 'Base',
-    42161: 'Arbitrum',
-    10: 'Optimism',
+    1: 'Solana Mainnet',
+    2: 'Solana Devnet',
   };
 
   return chainNames[chainId] || `Chain ${chainId}`;

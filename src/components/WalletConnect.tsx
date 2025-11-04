@@ -19,18 +19,17 @@ export function WalletConnect({ onConnect, onDisconnect }: WalletConnectProps) {
   }, []);
 
   const connectWallet = async () => {
-    if (typeof window.ethereum === 'undefined') {
-      alert('Please install MetaMask or another Web3 wallet to continue');
+    if (typeof window.solana === 'undefined') {
+      alert('Please install Phantom wallet to continue');
+      window.open('https://phantom.app/', '_blank');
       return;
     }
 
     setIsConnecting(true);
     try {
-      const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts',
-      });
+      const response = await window.solana.connect();
+      const address = response.publicKey.toString();
 
-      const address = accounts[0];
       setWalletAddress(address);
       localStorage.setItem('walletAddress', address);
       onConnect?.(address);

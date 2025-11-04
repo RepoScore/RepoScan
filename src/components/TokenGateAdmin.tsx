@@ -79,9 +79,9 @@ export function TokenGateAdmin() {
   const addWhitelistAddress = () => {
     if (!config || !newWhitelistAddress) return;
 
-    const address = newWhitelistAddress.toLowerCase();
-    if (!address.startsWith('0x') || address.length !== 42) {
-      setMessage({ type: 'error', text: 'Invalid Ethereum address' });
+    const address = newWhitelistAddress.trim();
+    if (address.length < 32 || address.length > 44) {
+      setMessage({ type: 'error', text: 'Invalid Solana address' });
       return;
     }
 
@@ -187,11 +187,8 @@ export function TokenGateAdmin() {
                 onChange={(e) => setConfig({ ...config, chain_id: parseInt(e.target.value) })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value={1}>Ethereum Mainnet</option>
-                <option value={137}>Polygon</option>
-                <option value={8453}>Base</option>
-                <option value={42161}>Arbitrum</option>
-                <option value={10}>Optimism</option>
+                <option value={1}>Solana Mainnet</option>
+                <option value={2}>Solana Devnet</option>
               </select>
             </div>
 
@@ -204,9 +201,8 @@ export function TokenGateAdmin() {
                 onChange={(e) => setConfig({ ...config, token_standard: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="ERC20">ERC20</option>
-                <option value="ERC721">ERC721 (NFT)</option>
-                <option value="ERC1155">ERC1155</option>
+                <option value="SPL">SPL Token</option>
+                <option value="NFT">Solana NFT</option>
               </select>
             </div>
           </div>

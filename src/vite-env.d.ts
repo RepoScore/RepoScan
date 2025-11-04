@@ -1,8 +1,10 @@
 /// <reference types="vite/client" />
 
 interface Window {
-  ethereum?: {
-    request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+  solana?: {
+    isPhantom?: boolean;
+    connect: () => Promise<{ publicKey: { toString: () => string } }>;
+    disconnect: () => Promise<void>;
     on: (event: string, callback: (...args: unknown[]) => void) => void;
     removeListener: (event: string, callback: (...args: unknown[]) => void) => void;
   };
