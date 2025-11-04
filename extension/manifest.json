@@ -1,0 +1,58 @@
+{
+  "manifest_version": 3,
+  "name": "RepoScan - GitHub Security Scanner",
+  "version": "1.0.0",
+  "description": "AI-powered repository security and code quality scanner. Analyze GitHub repositories instantly with dual-score safety and legitimacy ratings.",
+  "icons": {
+    "16": "assets/icon16.png",
+    "32": "assets/icon32.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icon16.png",
+      "32": "assets/icon32.png",
+      "48": "assets/icon48.png",
+      "128": "assets/icon128.png"
+    },
+    "default_title": "RepoScan - Analyze Repository"
+  },
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://github.com/*/*",
+        "https://github.com/*"
+      ],
+      "js": ["content/content-script.js"],
+      "css": ["styles/content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://github.com/*",
+    "https://*.supabase.co/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/*",
+        "styles/*"
+      ],
+      "matches": ["https://github.com/*"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

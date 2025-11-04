@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RepoScan</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h1>RepoScan</h1>
+      </div>
+    </header>
+
+    <div id="loading-state" class="loading-state hidden">
+      <div class="spinner"></div>
+      <p>Detecting repository...</p>
+    </div>
+
+    <div id="not-github" class="message-state hidden">
+      <div class="icon-warning">⚠️</div>
+      <h3>Not a GitHub Repository</h3>
+      <p>Navigate to a GitHub repository page to scan it.</p>
+    </div>
+
+    <div id="repo-detected" class="repo-info hidden">
+      <div class="repo-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="repo-name" id="repo-name">Loading...</div>
+      </div>
+
+      <div id="scan-results" class="scan-results hidden">
+        <div class="score-cards">
+          <div class="score-card safety">
+            <div class="score-label">Safety Score</div>
+            <div class="score-value" id="safety-score">--</div>
+            <div class="score-bar">
+              <div class="score-fill" id="safety-fill"></div>
+            </div>
+          </div>
+          <div class="score-card legitimacy">
+            <div class="score-label">Legitimacy Score</div>
+            <div class="score-value" id="legitimacy-score">--</div>
+            <div class="score-bar">
+              <div class="score-fill" id="legitimacy-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="details">
+          <div class="detail-item">
+            <span class="detail-label">Last Updated:</span>
+            <span class="detail-value" id="last-updated">--</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Stars:</span>
+            <span class="detail-value" id="stars">--</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Vulnerabilities:</span>
+            <span class="detail-value" id="vulnerabilities">--</span>
+          </div>
+        </div>
+
+        <button id="view-full-report" class="btn-primary">
+          View Full Report
+        </button>
+      </div>
+
+      <div id="no-scan" class="no-scan hidden">
+        <p>This repository hasn't been scanned yet.</p>
+        <button id="scan-now-btn" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Scan Now
+        </button>
+      </div>
+
+      <div id="scanning" class="scanning-state hidden">
+        <div class="spinner"></div>
+        <p>Scanning repository...</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="scan-progress"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="wallet-section" class="wallet-section">
+      <div id="wallet-disconnected" class="wallet-state">
+        <p class="wallet-label">Connect wallet for advanced features</p>
+        <button id="connect-wallet-btn" class="btn-secondary">
+          Connect Wallet
+        </button>
+      </div>
+      <div id="wallet-connected" class="wallet-state hidden">
+        <p class="wallet-label">Connected</p>
+        <div class="wallet-address" id="wallet-address">0x...</div>
+        <button id="disconnect-wallet-btn" class="btn-text">
+          Disconnect
+        </button>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <a href="#" id="settings-link">Settings</a>
+      <a href="#" id="about-link">About</a>
+      <a href="https://reposcan.io" target="_blank">Visit Website</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
